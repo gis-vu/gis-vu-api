@@ -51,28 +51,23 @@ namespace GIS.VU.API
         private double CalcualteDistanceToFeature(RouteFeature closet, Coordinate coordinate)
         {
             var coords = ((LineString)closet.Feature.Geometry).Coordinates;
-            var first = coords.First();
-            var second = coords.Skip(1).First();
 
-            double distance = CalcualteDistanceToLine(first, second, coordinate);
+            double distance = GetDistance(coords.Skip(1).First(), coordinate);
 
-            var initial = coords.Skip(1).First();
-
-            foreach (var c in coords.Skip(2))
+            foreach (var c in coords.Skip(1))
             {
-                var newDistance = CalcualteDistanceToLine(initial,c,coordinate);
-                initial = c;
+                var newDistance = GetDistance(c,coordinate);
 
-                if (newDistance > distance)
+                if (newDistance < distance)
                     distance = newDistance;
             }
 
             return distance;
         }
 
-        private double CalcualteDistanceToLine(Position first, Position second, Coordinate coordinate)
+        private double GetDistance(Position a, Coordinate b)
         {
-            return Math.Abs((second.Latitude - first.Latitude)*coordinate.Lng - (second.Longitude - first.Longitude)*coordinate.Lat + first.Latitude* second.Longitude - first.Longitude* second.Latitude) / (Math.Sqrt(Math.Pow(second.Latitude-first.Latitude,2)+Math.Pow(second.Longitude-first.Longitude,2)));
+            return Math.Sqrt(Math.Pow(a.Latitude - b.Lat, 2) + Math.Pow(a.Longitude - b.Lng, 2));
         }
     }
 }
