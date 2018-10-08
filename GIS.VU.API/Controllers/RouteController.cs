@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GIS.VU.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GIS.VU.API.Controllers
@@ -20,8 +21,12 @@ namespace GIS.VU.API.Controllers
 
         [Route("api/[controller]")]
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult<RouteSearchResponse> Post([FromBody] RouteSearchRequest request)
         {
+            return new RouteSearchResponse()
+            {
+                Route = new[] { request.Latitude, request.Longitude }
+            };
         }
     }
 }
