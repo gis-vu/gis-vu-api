@@ -24,6 +24,7 @@ namespace GIS.VU.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc();
         }
 
@@ -33,7 +34,12 @@ namespace GIS.VU.API
             {
                 app.UseDeveloperExceptionPage();
             }
-           
+
+            app.UseCors(builder =>
+                builder.AllowAnyHeader()
+                       .AllowAnyOrigin()
+                       .AllowAnyMethod());
+
             app.UseMvc();
         }
     }
