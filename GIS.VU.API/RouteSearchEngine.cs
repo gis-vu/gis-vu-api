@@ -31,7 +31,7 @@ namespace GIS.VU.API
             return new RouteSearchResponse()
             {
                 Type = "LineString",
-                Coordinates = ((LineString)startFeature.Feature.Geometry).Coordinates.Select(x=> new[] { x.Longitude, x.Latitude}).ToArray()
+                Coordinates = path.SelectMany(x => ((LineString)x.Feature.Geometry).Coordinates.Select(y => new[] { y.Longitude, y.Latitude }).ToArray()).ToArray()
             };
         }
 
