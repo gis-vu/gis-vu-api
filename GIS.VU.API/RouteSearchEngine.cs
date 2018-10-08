@@ -20,7 +20,13 @@ namespace GIS.VU.API
         public RouteSearchResponse FindRoute(RouteSearchRequest request)
         {
             var startFeature = FindClosetFeature(request.Start);
-            //var endFeature = FindClosetFeature(request.End);
+            var endFeature = FindClosetFeature(request.End);
+
+
+            Graph g = new Graph(routeFeatures);
+
+
+            var path = g.shortest_path(startFeature, endFeature);
 
             return new RouteSearchResponse()
             {
