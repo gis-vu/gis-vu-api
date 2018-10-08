@@ -25,7 +25,7 @@ namespace GIS.VU.API.Controllers
         {
             return new RouteSearchResponse()
             {
-                Route = new[] { request.Latitude, request.Longitude }
+                Route = new[] { request.Lat, request.Lng }
             };
         }
     }
