@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GeoJSON" Version="1.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

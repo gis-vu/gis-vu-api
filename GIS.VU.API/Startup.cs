@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BAMCIS.GeoJSON;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -24,6 +25,9 @@ namespace GIS.VU.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var data = GeoJSONReader.Read(@"C:\Users\daini\Desktop\Keliai_parke\test-routes2_single.geojson");
+
+
             services.AddCors();
             services.AddMvc();
             services.AddSingleton<RouteSearchEngine>();
