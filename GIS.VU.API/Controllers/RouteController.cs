@@ -11,6 +11,13 @@ namespace GIS.VU.API.Controllers
     [ApiController]
     public class RouteController : ControllerBase
     {
+        private RouteSearchEngine _routeSearchEngine;
+
+        public RouteController(RouteSearchEngine routeSearchEngine)
+        {
+            _routeSearchEngine = routeSearchEngine;
+        }
+
         [Route("")]
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
@@ -23,10 +30,7 @@ namespace GIS.VU.API.Controllers
         [HttpPost]
         public ActionResult<RouteSearchResponse> Post([FromBody] RouteSearchRequest request)
         {
-            return new RouteSearchResponse()
-            {
-                Route = new[] { request.Start, request.End }
-            };
+            return _routeSearchEngine.FindRoute(request);
         }
     }
 }

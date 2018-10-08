@@ -26,6 +26,7 @@ namespace GIS.VU.API
         {
             services.AddCors();
             services.AddMvc();
+            services.AddSingleton<RouteSearchEngine>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

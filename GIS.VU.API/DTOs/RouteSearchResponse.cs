@@ -7,6 +7,7 @@ namespace GIS.VU.API.DTOs
 {
     public class RouteSearchResponse
     {
-        public Coordinate[] Route { get; set; }
+        public string Type { get; set; }
+        public double[][] Coordinates { get; set; }
     }
 }
