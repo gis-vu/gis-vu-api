@@ -7,7 +7,7 @@ namespace GIS.VU.API.DTOs
 {
     public class RouteSearchRequest
     {
-        public double Lng { get; set; }
-        public double Lat { get; set; }
+        public Coordinate Start { get; set; }
+        public Coordinate End { get; set; }
     }
 }

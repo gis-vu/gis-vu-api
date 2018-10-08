@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace GIS.VU.API.DTOs
 {
-    public class RouteSearchResponse
+    public class Coordinate
     {
-        public Coordinate[] Route { get; set; }
+        public double Lng { get; set; }
+        public double Lat { get; set; }
     }
 }
