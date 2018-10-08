@@ -41,11 +41,11 @@ namespace GIS.VU.API
             var startPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.First();
             var endPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.Last();
 
-            var distance1 = Math.Sqrt(Math.Pow(startPoint1.Latitude - startPoint2.Latitude, 2) + Math.Pow(startPoint1.Longitude - startPoint2.Longitude, 2));
-            var distance2 = Math.Sqrt(Math.Pow(startPoint1.Latitude - endPoint2.Latitude, 2) + Math.Pow(startPoint1.Longitude - endPoint2.Longitude, 2));
+            var distance1 = GetDistance(startPoint1, startPoint2); 
+            var distance2 = GetDistance(startPoint1, endPoint2);  
 
-            var distance3 = Math.Sqrt(Math.Pow(endPoint1.Latitude - startPoint2.Latitude, 2) + Math.Pow(endPoint1.Longitude - startPoint2.Longitude, 2));
-            var distance4 = Math.Sqrt(Math.Pow(endPoint1.Latitude - endPoint2.Latitude, 2) + Math.Pow(endPoint1.Longitude - endPoint2.Longitude, 2));
+            var distance3 = GetDistance(endPoint1, startPoint2);  
+            var distance4 = GetDistance(endPoint1, endPoint2);  
 
             if (distance1 < distanceDiff || distance2 < distanceDiff || distance3 < distanceDiff || distance4 < distanceDiff)
                 return true;
@@ -83,6 +83,11 @@ namespace GIS.VU.API
             }
 
             return length * 100 * 1000;
+        }
+
+        private double GetDistance(Position a, Position b)
+        {
+            return Math.Sqrt(Math.Pow(a.Latitude - b.Latitude, 2) + Math.Pow(a.Longitude - b.Longitude, 2));
         }
     }
 }

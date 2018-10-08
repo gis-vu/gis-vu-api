@@ -25,12 +25,9 @@ namespace GIS.VU.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var data = GeoJSONReader.Read(@"C:\Users\daini\Desktop\Keliai_parke\test-routes2_single.geojson");
-
-
             services.AddCors();
             services.AddMvc();
-            services.AddSingleton<RouteSearchEngine>();
+            services.AddSingleton(new RouteSearchEngine(new GeoJsonFileReader(), @"C:\Users\daini\Desktop\Keliai_parke\test-routes2_single.geojson"));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
