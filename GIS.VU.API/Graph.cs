@@ -7,10 +7,10 @@ namespace GIS.VU.API
 {
     class Graph
     {
-        private List<RouteFeature> _routeFeatures;
+        private RouteFeature[] _routeFeatures;
 
 
-        public Graph(List<RouteFeature> routeFeatures)
+        public Graph(RouteFeature[] routeFeatures)
         {
             _routeFeatures = routeFeatures;
         }

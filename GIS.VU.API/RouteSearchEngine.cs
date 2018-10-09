@@ -10,11 +10,11 @@ namespace GIS.VU.API
 {
     public class RouteSearchEngine
     {
-        private List<RouteFeature> routeFeatures;
+        private RouteFeature[] routeFeatures;
 
         public RouteSearchEngine(GeoJsonFileReader fileReader, string path)
         {
-            routeFeatures = fileReader.Read(path);
+            routeFeatures = fileReader.Read(path).ToArray();
         }
 
         public RouteSearchResponse FindRoute(RouteSearchRequest request)
@@ -23,12 +23,36 @@ namespace GIS.VU.API
             var endFeature = FindClosetFeature(request.End);
 
 
-            Graph g = new Graph(routeFeatures);
+            Graph g1 = new Graph(routeFeatures);
+            var path = g1.shortest_path(startFeature, endFeature);
+            var route1 = PathToRoute(path);
+
+            if(path.Count == 2)
+                return new RouteSearchResponse(new[] { route1 });
+
+            var routeFeature = path.Skip(path.Count / 2).First();
 
 
-            var route = PathToRoute(g.shortest_path(startFeature, endFeature));
+            var oldValue = routeFeature.Length;
+            routeFeature.Length = double.MaxValue / 2;
+            var route2 = PathToRoute(g1.shortest_path(startFeature, endFeature));
+            routeFeature.Length = oldValue;
+            //var routeFeatureClone = new RouteFeature()
+            //{
+            //    Feature = routeFeature.Feature,
+            //    Neighbours = routeFeature.Neighbours,
+            //    Length = double.MaxValue / 2
+            //};
 
-            return new RouteSearchResponse(new[] { route, route});
+            //var routeFeaturesClone = (RouteFeature[])routeFeatures.Clone();
+            //var index = Array.FindIndex(routeFeaturesClone, e => e == routeFeature);
+
+            //routeFeaturesClone[index] = routeFeatureClone;
+
+            //Graph g2 = new Graph(routeFeaturesClone);
+            //var route2 = PathToRoute(g2.shortest_path(startFeature, endFeature));
+
+            return new RouteSearchResponse(new[] { route1, route2 });
         }
 
         private Route PathToRoute(List<RouteFeature> path)
