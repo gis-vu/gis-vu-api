@@ -7,7 +7,11 @@ namespace GIS.VU.API.DTOs
 {
     public class RouteSearchResponse
     {
-        public string Type { get; set; }
-        public double[][] Coordinates { get; set; }
+        public Route[] Routes { get; set; }
+
+        public RouteSearchResponse(IEnumerable<Route> routes)
+        {
+            Routes = routes.ToArray();
+        }
     }
 }

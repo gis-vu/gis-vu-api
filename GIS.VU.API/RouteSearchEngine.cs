@@ -26,13 +26,56 @@ namespace GIS.VU.API
             Graph g = new Graph(routeFeatures);
 
 
-            var path = g.shortest_path(startFeature, endFeature);
+            var route = PathToRoute(g.shortest_path(startFeature, endFeature));
 
-            return new RouteSearchResponse()
-            {
+            return new RouteSearchResponse(new[] { route, route});
+        }
+
+        private Route PathToRoute(List<RouteFeature> path)
+        {
+            return new Route(){
                 Type = "LineString",
-                Coordinates = path.SelectMany(x => ((LineString)x.Feature.Geometry).Coordinates.Select(y => new[] { y.Longitude, y.Latitude }).ToArray()).ToArray()
+                Coordinates = SorthPath(path.Select(x => ((LineString)x.Feature.Geometry).Coordinates.Select(y => new[] { y.Longitude, y.Latitude }).ToArray()))
             };
+        }
+
+        private double[][] SorthPath(IEnumerable<double[][]> path)
+        {
+            var coordinates = new List<double[]>();
+            var last = path.First().Last();
+
+            coordinates.AddRange(path.First());
+
+            foreach (var f in path.Skip(1))
+            {
+                if(AreClose(last, f.First()))
+                {
+                    coordinates.AddRange(f);
+                    last = f.Last();
+                }
+                else if(AreClose(last, f.Last()))//apversti
+                {
+                    coordinates.AddRange(f.Reverse());
+                    last = f.First();
+                }
+                else //jei reikia deti i prieki
+                {
+                    if (AreClose(coordinates.First(), f.Last()))
+                        coordinates = f.Concat(coordinates.ToArray()).ToList();
+                    else
+                        coordinates = f.Reverse().Concat(coordinates.ToArray()).ToList();
+                }
+            }
+
+            return coordinates.ToArray();
+        }
+
+        private bool AreClose(double[] first, double[] second)
+        {
+            if (GetDistance(first, second) < GeoJsonFileReader.DistanceDiff)
+                return true;
+
+            return false;
         }
 
         private RouteFeature FindClosetFeature(Coordinate coordinate)
@@ -74,6 +117,11 @@ namespace GIS.VU.API
         private double GetDistance(Position a, Coordinate b)
         {
             return Math.Sqrt(Math.Pow(a.Latitude - b.Lat, 2) + Math.Pow(a.Longitude - b.Lng, 2));
+        }
+
+        private double GetDistance(double[] first, double[] second)
+        {
+            return Math.Sqrt(Math.Pow(first.First() - second.First(), 2) + Math.Pow(first.Last() - second.Last(), 2));
         }
     }
 }
