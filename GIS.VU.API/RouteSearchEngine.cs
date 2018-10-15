@@ -65,7 +65,7 @@ namespace GIS.VU.API
                 },
                 Info = new RouteInfo()
                 {
-                    Length = path.Sum(x => x.Length)
+                    Length = Math.Round(path.Sum(x => x.Length),2)
                 }
             };
         }
