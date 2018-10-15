@@ -7,7 +7,7 @@ namespace GIS.VU.API
 {
     public class Route
     {
-        public string Type { get; set; }
-        public double[][] Coordinates { get; set; }
+        public RouteInfo Info{ get; set; }
+        public RouteData Data { get; set; }
     }
 }

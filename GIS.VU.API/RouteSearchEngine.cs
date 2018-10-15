@@ -58,8 +58,15 @@ namespace GIS.VU.API
         private Route PathToRoute(List<RouteFeature> path)
         {
             return new Route(){
-                Type = "LineString",
-                Coordinates = SorthPath(path.Select(x => ((LineString)x.Feature.Geometry).Coordinates.Select(y => new[] { y.Longitude, y.Latitude }).ToArray()))
+                Data = new RouteData()
+                {
+                    Type = "LineString",
+                    Coordinates = SorthPath(path.Select(x => ((LineString)x.Feature.Geometry).Coordinates.Select(y => new[] { y.Longitude, y.Latitude }).ToArray()))
+                },
+                Info = new RouteInfo()
+                {
+                    Length = path.Sum(x => x.Length)
+                }
             };
         }
 
