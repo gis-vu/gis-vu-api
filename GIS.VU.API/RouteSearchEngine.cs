@@ -20,7 +20,6 @@ namespace GIS.VU.API
             var startFeature = FindClosetFeature(request.Start);
             var endFeature = FindClosetFeature(request.End);
 
-
             var g1 = new Graph(_routeFeatures, request.SearchOptions);
             var path = g1.FindShortestPath(startFeature, endFeature);
 
@@ -28,22 +27,12 @@ namespace GIS.VU.API
                 return new RouteSearchResponse(Array.Empty<Route>());
 
             var route1 = PathToRoute(path);
-
-            if (path.Count == 2)
-                return new RouteSearchResponse(new[] {route1});
-
-            var routeFeature = path.Skip(path.Count / 2).First();
-
-
-            var oldValue = routeFeature.Length;
-            routeFeature.Length = double.MaxValue / 2;
-            var path2 = g1.FindShortestPath(startFeature, endFeature);
-            if(path2 == null)
-                return new RouteSearchResponse(new[] { route1 });
-
+         
+            var g2 = new Graph(_routeFeatures, null);
+            var path2 = g2.FindShortestPath(startFeature, endFeature);
+            
             var route2 = PathToRoute(path2);
-            routeFeature.Length = oldValue;
-
+          
             return new RouteSearchResponse(new[] {route1, route2});
         }
 
