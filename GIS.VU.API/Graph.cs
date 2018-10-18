@@ -30,7 +30,7 @@ namespace GIS.VU.API
             {
                 if (vertex == startFeature)
                 {
-                    distances[vertex] = 0;
+                    distances[vertex] = ApplySearchOptionsToGetLength(startFeature);
                 }
                 else
                 {
@@ -66,7 +66,7 @@ namespace GIS.VU.API
 
                 foreach (var neighbor in smallest.Neighbours)
                 {
-                    var alt = distances[smallest] + neighbor.Length;
+                    var alt = distances[smallest] + ApplySearchOptionsToGetLength(neighbor);
                     if (alt < distances[neighbor])
                     {
                         distances[neighbor] = alt;
@@ -81,6 +81,20 @@ namespace GIS.VU.API
             path.Add(startFeature);
 
             return path;
+        }
+
+        private double ApplySearchOptionsToGetLength(RouteFeature feature)
+        {
+            if (_searchOptions == null)
+                return feature.Length;
+
+            var option = _searchOptions.PropertyImportance.FirstOrDefault(x =>
+                feature.Feature.Properties.Any(y => y.Key == x.Property && y.Value == x.Value));
+
+            if (option == null)
+                return feature.Length;
+
+            return feature.Length * option.Importance;
         }
     }
 }
