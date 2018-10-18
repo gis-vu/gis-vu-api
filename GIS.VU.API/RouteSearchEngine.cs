@@ -128,13 +128,13 @@ namespace GIS.VU.API
             return closet;
         }
 
-        private double CalcualteDistanceToFeature(RouteFeature closet, Coordinate coordinate)
+        private double CalcualteDistanceToFeature(RouteFeature feature, Coordinate coordinate)
         {
-            var coords = ((LineString)closet.Feature.Geometry).Coordinates;
+            Tuple<Position, Position>[] lineSegments = SplitFeatureIntoLineSegments(feature);
 
-            double distance = GetDistance(coords.Skip(1).First(), coordinate);
+            double distance = GetDistance(lineSegments.First(), coordinate);
 
-            foreach (var c in coords.Skip(1))
+            foreach (var c in lineSegments.Skip(1))
             {
                 var newDistance = GetDistance(c,coordinate);
 
@@ -145,10 +145,64 @@ namespace GIS.VU.API
             return distance;
         }
 
-        private double GetDistance(Position a, Coordinate b)
+        private Tuple<Position, Position>[] SplitFeatureIntoLineSegments(RouteFeature feature)
         {
-            return Math.Sqrt(Math.Pow(a.Latitude - b.Lat, 2) + Math.Pow(a.Longitude - b.Lng, 2));
+            var coords = ((LineString)feature.Feature.Geometry).Coordinates;
+            var lineSegments = new List<Tuple<Position, Position>>();
+
+            var lastPosition = coords.First();
+
+            foreach (var c in coords.Skip(1))
+            {
+                lineSegments.Add(new Tuple<Position, Position>(lastPosition, c));
+                lastPosition = c;
+            }
+
+            return lineSegments.ToArray();
         }
+
+        private double GetDistance(Tuple<Position, Position> lineSegment, Coordinate point)
+        {
+            double x = point.Lat, y= point.Lng, x1=lineSegment.Item1.Latitude, y1= lineSegment.Item1.Longitude, x2= lineSegment.Item2.Latitude, y2= lineSegment.Item2.Longitude;
+
+            var A = x - x1;
+            var B = y - y1;
+            var C = x2 - x1;
+            var D = y2 - y1;
+
+            var dot = A * C + B * D;
+            var len_sq = C * C + D * D;
+            double param = -1;
+            if (len_sq != 0) //in case of 0 length line
+                param = dot / len_sq;
+
+            double xx, yy;
+
+            if (param < 0)
+            {
+                xx = x1;
+                yy = y1;
+            }
+            else if (param > 1)
+            {
+                xx = x2;
+                yy = y2;
+            }
+            else
+            {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+
+            var dx = x - xx;
+            var dy = y - yy;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        //private double GetDistance(Position a, Coordinate b)
+        //{
+        //    return Math.Sqrt(Math.Pow(a.Latitude - b.Lat, 2) + Math.Pow(a.Longitude - b.Lng, 2));
+        //}
 
         private double GetDistance(double[] first, double[] second)
         {

@@ -72,6 +72,8 @@ namespace GIS.VU.API
                 }
             }
 
+            path.Add(startFeature);
+
             return path;
         }
     }
