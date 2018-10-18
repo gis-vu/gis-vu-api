@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GIS.VU.API.DTOs;
 
 namespace GIS.VU.API
 {
     class Graph
     {
         private RouteFeature[] _routeFeatures;
+        private SearchOptions _searchOptions;
 
 
-        public Graph(RouteFeature[] routeFeatures)
+        public Graph(RouteFeature[] routeFeatures, SearchOptions searchOptions)
         {
             _routeFeatures = routeFeatures;
+            _searchOptions = searchOptions;
         }
 
-        public List<RouteFeature> shortest_path(RouteFeature startFeature, RouteFeature endFeature)
+        public List<RouteFeature> FindShortestPath(RouteFeature startFeature, RouteFeature endFeature)
         {
             var previous = new Dictionary<RouteFeature, RouteFeature>();
             var distances = new Dictionary<RouteFeature, double>();
@@ -71,6 +74,9 @@ namespace GIS.VU.API
                     }
                 }
             }
+
+            if (path == null) //no path 
+                return null;
 
             path.Add(startFeature);
 
