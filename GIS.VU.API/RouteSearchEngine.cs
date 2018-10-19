@@ -56,7 +56,7 @@ namespace GIS.VU.API
 
                 var route1 = PathToRoute(path1);
                 var route2 = PathToRoute(path2);
-
+                var r1 = MergeTwoRoutes(route1, route2);
 
                 var g2 = new Graph(_routeFeatures, request.SearchOptions);
                 var path3 = g2.FindShortestPath(startFeature, pointFeature);
@@ -66,7 +66,7 @@ namespace GIS.VU.API
                 var route4 = PathToRoute(path4);
                 var r = MergeTwoRoutes(route3, route4);
 
-                return new RouteSearchResponse(new[] { route1, route2, r  });
+                return new RouteSearchResponse(new[] { r1, r  });
             }
         }
 
