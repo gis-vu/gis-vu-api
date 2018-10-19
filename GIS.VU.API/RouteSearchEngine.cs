@@ -26,7 +26,7 @@ namespace GIS.VU.API
             if (pointFeature == null)
             {
                 var g1 = new Graph(_routeFeatures, null);
-                var path = g1.FindShortestPath(startFeature, endFeature);
+                var path = g1.FindShortestPath(startFeature, endFeature, null);
 
                 if (path == null)
                     return new RouteSearchResponse(Array.Empty<Route>());
@@ -34,7 +34,7 @@ namespace GIS.VU.API
                 var route1 = PathToRoute(path);
 
                 var g2 = new Graph(_routeFeatures, request.SearchOptions);
-                var path2 = g2.FindShortestPath(startFeature, endFeature);
+                var path2 = g2.FindShortestPath(startFeature, endFeature, null);
 
                 var route2 = PathToRoute(path2);
 
@@ -43,24 +43,22 @@ namespace GIS.VU.API
             else
             {
                 var g1 = new Graph(_routeFeatures, null);
-                var path1 = g1.FindShortestPath(startFeature, pointFeature);
+                var path1 = g1.FindShortestPath(startFeature, pointFeature, null);
 
                 if (path1 == null)
                     return new RouteSearchResponse(Array.Empty<Route>());
 
-                var path2 = g1.FindShortestPath(pointFeature, endFeature);
+                var path2 = g1.FindShortestPath(pointFeature, endFeature, null);
                 if (path2 == null)
                     return new RouteSearchResponse(Array.Empty<Route>());
-
-               // path1.AddRange(path2.Where(x=>  path1.All(y => y != x)));
 
                 var route1 = PathToRoute(path1);
                 var route2 = PathToRoute(path2);
                 var r1 = MergeTwoRoutes(route1, route2);
 
                 var g2 = new Graph(_routeFeatures, request.SearchOptions);
-                var path3 = g2.FindShortestPath(startFeature, pointFeature);
-                var path4 = g2.FindShortestPath(pointFeature, endFeature);            
+                var path3 = g2.FindShortestPath(startFeature, pointFeature, null);
+                var path4 = g2.FindShortestPath(pointFeature, endFeature, path3);            
 
                 var route3 = PathToRoute(path3);
                 var route4 = PathToRoute(path4);

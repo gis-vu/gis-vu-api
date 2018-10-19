@@ -18,7 +18,7 @@ namespace GIS.VU.API
             _searchOptions = searchOptions;
         }
 
-        public List<RouteFeature> FindShortestPath(RouteFeature startFeature, RouteFeature endFeature)
+        public List<RouteFeature> FindShortestPath(RouteFeature startFeature, RouteFeature endFeature, List<RouteFeature> featuresToOverlap)
         {
             var previous = new Dictionary<RouteFeature, RouteFeature>();
             var distances = new Dictionary<RouteFeature, double>();
@@ -30,7 +30,7 @@ namespace GIS.VU.API
             {
                 if (vertex == startFeature)
                 {
-                    distances[vertex] = ApplySearchOptionsToGetLength(startFeature);
+                    distances[vertex] = ApplySearchOptionsToGetLength(startFeature, featuresToOverlap);
                 }
                 else
                 {
@@ -66,7 +66,7 @@ namespace GIS.VU.API
 
                 foreach (var neighbor in smallest.Neighbours)
                 {
-                    var alt = distances[smallest] + ApplySearchOptionsToGetLength(neighbor);
+                    var alt = distances[smallest] + ApplySearchOptionsToGetLength(neighbor, featuresToOverlap);
                     if (alt < distances[neighbor])
                     {
                         distances[neighbor] = alt;
@@ -83,18 +83,29 @@ namespace GIS.VU.API
             return path;
         }
 
-        private double ApplySearchOptionsToGetLength(RouteFeature feature)
+        private double ApplySearchOptionsToGetLength(RouteFeature feature, List<RouteFeature> featuresToOverlap)
         {
+
+            var featureLength = feature.Length;
+
             if (_searchOptions == null)
-                return feature.Length;
+                return featureLength;
 
             var option = _searchOptions.PropertyImportance.FirstOrDefault(x =>
                 feature.Feature.Properties.Any(y => y.Key == x.Property && y.Value == x.Value));
 
-            if (option == null)
-                return feature.Length;
+            if (option != null)
+            {
+                featureLength *= option.Importance;
+            }
 
-            return feature.Length * option.Importance;
+
+            if (featuresToOverlap != null && featuresToOverlap.Contains(feature))
+            {
+                featureLength *= _searchOptions.TrackOverlapImportance;
+            }
+
+            return featureLength;
         }
     }
 }
