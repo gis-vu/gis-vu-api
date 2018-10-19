@@ -85,7 +85,22 @@ namespace GIS.VU.API
             return length * 100 * 1000;
         }
 
-        private double GetDistance(Position a, Position b)
+
+        public static double CalculateLength(IEnumerable<double[]> coordinates)
+        {
+            var initial = coordinates.First();
+            double length = 0;
+
+            foreach (var p in coordinates.Skip(1))
+            {
+                length += Math.Sqrt(Math.Pow(initial[0] - p[0], 2) + Math.Pow(initial[1] - p[1], 2));
+                initial = p;
+            }
+
+            return length * 100 * 1000;
+        }
+
+        private static double GetDistance(Position a, Position b)
         {
             return Math.Sqrt(Math.Pow(a.Latitude - b.Latitude, 2) + Math.Pow(a.Longitude - b.Longitude, 2));
         }

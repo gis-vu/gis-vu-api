@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BAMCIS.GeoJSON;
 using GIS.VU.API.DTOs;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace GIS.VU.API
 {
@@ -20,20 +21,122 @@ namespace GIS.VU.API
             var startFeature = FindClosetFeature(request.Start);
             var endFeature = FindClosetFeature(request.End);
 
-            var g1 = new Graph(_routeFeatures, request.SearchOptions);
-            var path = g1.FindShortestPath(startFeature, endFeature);
+            var pointFeature = request.Point == null ? null : FindClosetFeature(request.Point);
 
-            if(path == null)
-                return new RouteSearchResponse(Array.Empty<Route>());
+            if (pointFeature == null)
+            {
+                var g1 = new Graph(_routeFeatures, null);
+                var path = g1.FindShortestPath(startFeature, endFeature);
 
-            var route1 = PathToRoute(path);
-         
-            var g2 = new Graph(_routeFeatures, null);
-            var path2 = g2.FindShortestPath(startFeature, endFeature);
+                if (path == null)
+                    return new RouteSearchResponse(Array.Empty<Route>());
+
+                var route1 = PathToRoute(path);
+
+                var g2 = new Graph(_routeFeatures, request.SearchOptions);
+                var path2 = g2.FindShortestPath(startFeature, endFeature);
+
+                var route2 = PathToRoute(path2);
+
+                return new RouteSearchResponse(new[] { route1, route2 });
+            }
+            else
+            {
+                var g1 = new Graph(_routeFeatures, null);
+                var path1 = g1.FindShortestPath(startFeature, pointFeature);
+
+                if (path1 == null)
+                    return new RouteSearchResponse(Array.Empty<Route>());
+
+                var path2 = g1.FindShortestPath(pointFeature, endFeature);
+                if (path2 == null)
+                    return new RouteSearchResponse(Array.Empty<Route>());
+
+               // path1.AddRange(path2.Where(x=>  path1.All(y => y != x)));
+
+                var route1 = PathToRoute(path1);
+                var route2 = PathToRoute(path2);
+
+
+                var g2 = new Graph(_routeFeatures, request.SearchOptions);
+                var path3 = g2.FindShortestPath(startFeature, pointFeature);
+                var path4 = g2.FindShortestPath(pointFeature, endFeature);            
+
+                var route3 = PathToRoute(path3);
+                var route4 = PathToRoute(path4);
+                var r = MergeTwoRoutes(route3, route4);
+
+                return new RouteSearchResponse(new[] { route1, route2, r  });
+            }
+        }
+
+        private Route MergeTwoRoutes(Route route1, Route route2)
+        {
+            var data =new RouteData()
+            {
+                Type = route1.Data.Type
+            };
+            var info = new RouteInfo()
+            {
+                Length = route1.Info.Length + route2.Info.Length
+            };
+
+            var result = new Route()
+            {
+                Data = data,
+                Info = info
+            };
+
+            var coordinates = new List<double[]>();
+
+            if (Enumerable.SequenceEqual(route1.Data.Coordinates.Last() , route2.Data.Coordinates.First()))
+            {
+                coordinates.AddRange(route1.Data.Coordinates);
+                coordinates.AddRange(route2.Data.Coordinates);
+            }
+            else if (Enumerable.SequenceEqual(route1.Data.Coordinates.Last() , route2.Data.Coordinates.Last()))
+            {
+                
+                coordinates.AddRange(route2.Data.Coordinates);
+                coordinates.Reverse();
+                coordinates.InsertRange(0, route1.Data.Coordinates);
+            }
+            else if (Enumerable.SequenceEqual(route1.Data.Coordinates.First() , route2.Data.Coordinates.First()))
+            {
+                coordinates.AddRange(route1.Data.Coordinates);
+                coordinates.Reverse();
+                coordinates.AddRange(route2.Data.Coordinates);
+            }
+            else if (Enumerable.SequenceEqual(route1.Data.Coordinates.First(), route2.Data.Coordinates.Last()))
+            {
+                coordinates.AddRange(route2.Data.Coordinates);
+                coordinates.AddRange(route1.Data.Coordinates);
+            }
+           
             
-            var route2 = PathToRoute(path2);
-          
-            return new RouteSearchResponse(new[] {route1, route2});
+            else
+            {
+                coordinates.AddRange(route1.Data.Coordinates);
+
+                route2.Data.Coordinates = route2.Data.Coordinates.Reverse().ToArray();
+
+                for (int i = 0; i < route2.Data.Coordinates.Length; i++)
+                {
+                    if(coordinates.Any(x=> Enumerable.SequenceEqual(x, route2.Data.Coordinates[i])))
+                        continue;
+
+                    route2.Data.Coordinates = route2.Data.Coordinates.Skip(i == 0? 0 : i-1).ToArray();
+
+                 
+                    return MergeTwoRoutes(route1, route2);
+                }
+
+            }
+
+
+            result.Data.Coordinates = coordinates.ToArray();
+            result.Info.Length =  Math.Round(GeoJsonFileReader.CalculateLength(result.Data.Coordinates),2);
+            return result;
         }
 
         private Route PathToRoute(List<RouteFeature> path)
