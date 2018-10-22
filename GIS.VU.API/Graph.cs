@@ -86,7 +86,7 @@ namespace GIS.VU.API
         private double ApplySearchOptionsToGetLength(RouteFeature feature, List<RouteFeature> featuresToOverlap)
         {
 
-            var featureLength = feature.Length;
+            var featureLength = feature.Feature.Properties["length"];
 
             if (_searchOptions == null)
                 return featureLength;
@@ -103,6 +103,12 @@ namespace GIS.VU.API
             if (featuresToOverlap != null && featuresToOverlap.Contains(feature))
             {
                 featureLength *= _searchOptions.TrackOverlapImportance;
+            }
+
+            foreach (var propertyValueImportance in _searchOptions.PropertyValueImportance)
+            {
+                if (feature.Feature.Properties[propertyValueImportance.Property] <= propertyValueImportance.Threshold)
+                    featureLength *= propertyValueImportance.Importance;
             }
 
             return featureLength;

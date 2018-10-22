@@ -150,7 +150,7 @@ namespace GIS.VU.API
                 },
                 Info = new RouteInfo
                 {
-                    Length = Math.Round(path.Sum(x => x.Length), 2)
+                    Length = Math.Round(path.Sum(x => (double)x.Feature.Properties["length"]), 2)
                 }
             };
         }

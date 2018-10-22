@@ -64,7 +64,7 @@ namespace GIS.VU.API
                 routeFeatures.Add(new RouteFeature()
                 {
                     Feature = f,
-                    Length = CalculateLength(((LineString)f.Geometry).Coordinates)
+                    //Length = CalculateLength(((LineString)f.Geometry).Coordinates)
                 });
             }
 
