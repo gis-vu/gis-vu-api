@@ -10,7 +10,7 @@ namespace GIS.VU.API
 {
     public class GeoJsonFileReader
     {
-        public const double DistanceDiff = 10f / 100000;
+        public const double DistanceDiff = 10f / 10000000;
 
         public List<RouteFeature> Read(string path)
         {
@@ -34,22 +34,25 @@ namespace GIS.VU.API
         {
             if (routeFeature == testRouteFeature)
                 return false;
-
+           
             var startPoint1 = ((LineString)routeFeature.Feature.Geometry).Coordinates.First();
             var endPoint1 = ((LineString)routeFeature.Feature.Geometry).Coordinates.Last();
 
             var startPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.First();
             var endPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.Last();
 
-            var distance1 = GetDistance(startPoint1, startPoint2); 
-            var distance2 = GetDistance(startPoint1, endPoint2);  
-
-            var distance3 = GetDistance(endPoint1, startPoint2);  
-            var distance4 = GetDistance(endPoint1, endPoint2);  
-
-            if (distance1 < DistanceDiff || distance2 < DistanceDiff || distance3 < DistanceDiff || distance4 < DistanceDiff)
+            if (RouteSearchEngine.AreClose(startPoint1, startPoint2))
                 return true;
 
+            if (RouteSearchEngine.AreClose(startPoint1, endPoint2))
+                return true;
+
+            if (RouteSearchEngine.AreClose(endPoint1, startPoint2))
+                return true;
+
+            if (RouteSearchEngine.AreClose(endPoint1, endPoint2))
+                return true;
+            
             return false;
         }
 

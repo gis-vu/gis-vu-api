@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BAMCIS.GeoJSON;
 using GIS.VU.API.DTOs;
@@ -139,6 +141,8 @@ namespace GIS.VU.API
 
         private Route PathToRoute(List<RouteFeature> path)
         {
+            //var a = path.FirstOrDefault(x => x.Feature.Properties["osm_id"] == "195164433");
+
             return new Route
             {
                 Data = new RouteData
@@ -157,33 +161,89 @@ namespace GIS.VU.API
 
         private double[][] SorthPath(IList<double[][]> path)
         {
-            var coordinates = new List<double[]>();
-            var last = path.First().Last();
+            var tempPat = new List<double[][]>(path);
 
-            coordinates.AddRange(path.First());
+            var lastSubPath = tempPat.First();
+            tempPat.Remove(lastSubPath);
 
-            foreach (var f in path.Skip(1))
-                if (AreClose(last, f.First()))
+            IEnumerable<double[]> coordinates = lastSubPath;
+
+
+            while (tempPat.Any())
+            {
+                var newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.First(),coordinates.First()));
+                if (newLastSubPath != null)
                 {
-                    coordinates.AddRange(f);
-                    last = f.Last();
+                    tempPat.Remove(newLastSubPath);
+
+                    coordinates = newLastSubPath.Reverse().Concat(coordinates);
+
+                    continue;
                 }
-                else if (AreClose(last, f.Last())) //apversti
+
+                newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.First() , coordinates.Last()));
+                if (newLastSubPath != null)
                 {
-                    coordinates.AddRange(f.Reverse());
-                    last = f.First();
+                    tempPat.Remove(newLastSubPath);
+
+                    coordinates = coordinates.Concat(newLastSubPath);
+
+                    continue;
                 }
-                else //jei reikia deti i prieki
+
+                newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.Last() , coordinates.First()));
+                if (newLastSubPath != null)
                 {
-                    coordinates = AreClose(coordinates.First(), f.Last()) ? f.Concat(coordinates.ToArray()).ToList() : f.Reverse().Concat(coordinates.ToArray()).ToList();
+                    tempPat.Remove(newLastSubPath);
+
+                    coordinates = newLastSubPath.Concat(coordinates);
+
+                    continue;
                 }
+
+                newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.Last(), coordinates.Last()));
+                if (newLastSubPath != null)
+                {
+                    tempPat.Remove(newLastSubPath);
+
+                    coordinates = coordinates.Concat(newLastSubPath.Reverse());
+
+                    continue;
+                }
+
+                throw new Exception("Something went wrong at path sorting");
+            }
+
+            //foreach (var f in path.Skip(1))
+            //    if (AreClose(last, f.First()))
+            //    {
+            //        coordinates.AddRange(f);
+            //        last = f.Last();
+            //    }
+            //    else if (AreClose(last, f.Last())) //apversti
+            //    {
+            //        coordinates.AddRange(f.Reverse());
+            //        last = f.First();
+            //    }
+            //    else //jei reikia deti i prieki
+            //    {
+            //        coordinates = AreClose(coordinates.First(), f.Last()) ? f.Concat(coordinates.ToArray()).ToList() : f.Reverse().Concat(coordinates.ToArray()).ToList();
+            //    }
 
             return coordinates.ToArray();
         }
 
-        private bool AreClose(double[] first, double[] second)
+        public bool AreClose(double[] first, double[] second)
         {
             if (GetDistance(first, second) < GeoJsonFileReader.DistanceDiff)
+                return true;
+
+            return false;
+        }
+
+        public static bool AreClose(Position first, Position second)
+        {
+            if (GetDistance(new []{first.Latitude, first.Longitude}, new[] { second.Latitude, second.Longitude }) < GeoJsonFileReader.DistanceDiff)
                 return true;
 
             return false;
@@ -284,7 +344,7 @@ namespace GIS.VU.API
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        private double GetDistance(double[] first, double[] second)
+        private static double GetDistance(double[] first, double[] second)
         {
             return Math.Sqrt(Math.Pow(first.First() - second.First(), 2) + Math.Pow(first.Last() - second.Last(), 2));
         }
