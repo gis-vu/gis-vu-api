@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace GIS.VU.API.DTOs
+﻿namespace DTOs
 {
     public class RouteSearchRequest
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GIS.VU.API.DTOs;
+using DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GIS.VU.API.Controllers

@@ -1,10 +1,7 @@
-﻿using BAMCIS.GeoJSON;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using BAMCIS.GeoJSON;
 
-namespace GIS.VU.API
+namespace DTOs
 {
     public class RouteFeature
     {

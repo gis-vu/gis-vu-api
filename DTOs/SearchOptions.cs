@@ -1,4 +1,4 @@
-﻿namespace GIS.VU.API.DTOs
+﻿namespace DTOs
 {
     public class SearchOptions
     {

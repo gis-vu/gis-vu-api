@@ -1,4 +1,4 @@
-﻿namespace GIS.VU.API
+﻿namespace DTOs
 {
     public class RouteData
     {

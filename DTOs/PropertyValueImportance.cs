@@ -1,9 +1,9 @@
-﻿namespace GIS.VU.API.DTOs
+﻿namespace DTOs
 {
-    public class PropertyImportance
+    public class PropertyValueImportance
     {
         public double Importance { get; set; }
         public string Property { get; set; }
-        public string Value { get; set; }
+        public double Threshold { get; set; }
     }
 }

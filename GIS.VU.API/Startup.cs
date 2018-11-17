@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ReadMyGIS;
 
 namespace GIS.VU.API
 {
@@ -27,7 +28,17 @@ namespace GIS.VU.API
         {
             services.AddCors();
             services.AddMvc();
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            // the code that you want to measure comes here
+
             services.AddSingleton(new RouteSearchEngine(new GeoJsonFileReader(), ".\\routedata.geojson"));
+
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            Console.WriteLine(elapsedMs);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

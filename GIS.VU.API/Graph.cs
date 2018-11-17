@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using GIS.VU.API.DTOs;
+using DTOs;
 
 namespace GIS.VU.API
 {

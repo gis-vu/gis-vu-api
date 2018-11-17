@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DTOs\DTOs.csproj" />
+    <ProjectReference Include="..\ReadMyGIS\ReadMyGIS.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="routedata.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

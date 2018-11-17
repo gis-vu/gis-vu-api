@@ -1,18 +1,15 @@
-﻿using BAMCIS.GeoJSON;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
+using BAMCIS.GeoJSON;
+using DTOs;
+using GISFunctions;
 
-namespace GIS.VU.API
+namespace ReadMyGIS
 {
     public class GeoJsonFileReader
     {
-        public const double DistanceDiff = 10f / 10000000;
-
         public List<RouteFeature> Read(string path)
         {
             var routeFeatures = ReadAndParseFeatures(path);
@@ -51,16 +48,16 @@ namespace GIS.VU.API
             var startPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.First();
             var endPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.Last();
 
-            if (RouteSearchEngine.AreClose(startPoint1, startPoint2))
+            if (Helpers.AreClose(startPoint1, startPoint2))
                 return true;
 
-            if (RouteSearchEngine.AreClose(startPoint1, endPoint2))
+            if (Helpers.AreClose(startPoint1, endPoint2))
                 return true;
 
-            if (RouteSearchEngine.AreClose(endPoint1, startPoint2))
+            if (Helpers.AreClose(endPoint1, startPoint2))
                 return true;
 
-            if (RouteSearchEngine.AreClose(endPoint1, endPoint2))
+            if (Helpers.AreClose(endPoint1, endPoint2))
                 return true;
             
             return false;

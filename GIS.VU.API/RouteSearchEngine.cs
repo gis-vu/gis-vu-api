@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BAMCIS.GeoJSON;
-using GIS.VU.API.DTOs;
+using DTOs;
+using GISFunctions;
 using Microsoft.EntityFrameworkCore.Internal;
+using ReadMyGIS;
 
 namespace GIS.VU.API
 {
@@ -171,7 +173,7 @@ namespace GIS.VU.API
 
             while (tempPat.Any())
             {
-                var newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.First(),coordinates.First()));
+                var newLastSubPath = tempPat.FirstOrDefault(x => Helpers.AreClose(x.First(),coordinates.First()));
                 if (newLastSubPath != null)
                 {
                     tempPat.Remove(newLastSubPath);
@@ -181,7 +183,7 @@ namespace GIS.VU.API
                     continue;
                 }
 
-                newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.First() , coordinates.Last()));
+                newLastSubPath = tempPat.FirstOrDefault(x => Helpers.AreClose(x.First() , coordinates.Last()));
                 if (newLastSubPath != null)
                 {
                     tempPat.Remove(newLastSubPath);
@@ -191,7 +193,7 @@ namespace GIS.VU.API
                     continue;
                 }
 
-                newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.Last() , coordinates.First()));
+                newLastSubPath = tempPat.FirstOrDefault(x => Helpers.AreClose(x.Last() , coordinates.First()));
                 if (newLastSubPath != null)
                 {
                     tempPat.Remove(newLastSubPath);
@@ -201,7 +203,7 @@ namespace GIS.VU.API
                     continue;
                 }
 
-                newLastSubPath = tempPat.FirstOrDefault(x => AreClose(x.Last(), coordinates.Last()));
+                newLastSubPath = tempPat.FirstOrDefault(x => Helpers.AreClose(x.Last(), coordinates.Last()));
                 if (newLastSubPath != null)
                 {
                     tempPat.Remove(newLastSubPath);
@@ -233,30 +235,18 @@ namespace GIS.VU.API
             return coordinates.ToArray();
         }
 
-        public bool AreClose(double[] first, double[] second)
-        {
-            if (GetDistance(first, second) < GeoJsonFileReader.DistanceDiff)
-                return true;
+      
 
-            return false;
-        }
-
-        public static bool AreClose(Position first, Position second)
-        {
-            if (GetDistance(new []{first.Latitude, first.Longitude}, new[] { second.Latitude, second.Longitude }) < GeoJsonFileReader.DistanceDiff)
-                return true;
-
-            return false;
-        }
+       
 
         private RouteFeature FindClosetFeature(Coordinate coordinate)
         {
             var closet = _routeFeatures.First();
-            var dist = CalcualteDistanceToFeature(closet, coordinate);
+            var dist = Helpers.CalcualteDistanceToFeature(closet, coordinate);
 
             foreach (var f in _routeFeatures.Skip(1))
             {
-                var newDistance = CalcualteDistanceToFeature(f, coordinate);
+                var newDistance = Helpers.CalcualteDistanceToFeature(f, coordinate);
 
                 if (newDistance < dist)
                 {
@@ -266,87 +256,6 @@ namespace GIS.VU.API
             }
 
             return closet;
-        }
-
-        private double CalcualteDistanceToFeature(RouteFeature feature, Coordinate coordinate)
-        {
-            var lineSegments = SplitFeatureIntoLineSegments(feature);
-
-            var distance = GetDistance(lineSegments.First(), coordinate);
-
-            foreach (var c in lineSegments.Skip(1))
-            {
-                var newDistance = GetDistance(c, coordinate);
-
-                if (newDistance < distance)
-                    distance = newDistance;
-            }
-
-            return distance;
-        }
-
-        private Tuple<Position, Position>[] SplitFeatureIntoLineSegments(RouteFeature feature)
-        {
-            var coords = ((LineString) feature.Feature.Geometry).Coordinates;
-            var lineSegments = new List<Tuple<Position, Position>>();
-
-            var lastPosition = coords.First();
-
-            foreach (var c in coords.Skip(1))
-            {
-                lineSegments.Add(new Tuple<Position, Position>(lastPosition, c));
-                lastPosition = c;
-            }
-
-            return lineSegments.ToArray();
-        }
-
-        private double GetDistance(Tuple<Position, Position> lineSegment, Coordinate point)
-        {
-            double x = point.Lat,
-                y = point.Lng,
-                x1 = lineSegment.Item1.Latitude,
-                y1 = lineSegment.Item1.Longitude,
-                x2 = lineSegment.Item2.Latitude,
-                y2 = lineSegment.Item2.Longitude;
-
-            var A = x - x1;
-            var B = y - y1;
-            var C = x2 - x1;
-            var D = y2 - y1;
-
-            var dot = A * C + B * D;
-            var len_sq = C * C + D * D;
-            double param = -1;
-            if (len_sq != 0) //in case of 0 length line
-                param = dot / len_sq;
-
-            double xx, yy;
-
-            if (param < 0)
-            {
-                xx = x1;
-                yy = y1;
-            }
-            else if (param > 1)
-            {
-                xx = x2;
-                yy = y2;
-            }
-            else
-            {
-                xx = x1 + param * C;
-                yy = y1 + param * D;
-            }
-
-            var dx = x - xx;
-            var dy = y - yy;
-            return Math.Sqrt(dx * dx + dy * dy);
-        }
-
-        private static double GetDistance(double[] first, double[] second)
-        {
-            return Math.Sqrt(Math.Pow(first.First() - second.First(), 2) + Math.Pow(first.Last() - second.Last(), 2));
-        }
+        }       
     }
 }
