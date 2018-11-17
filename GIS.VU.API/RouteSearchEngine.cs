@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using BAMCIS.GeoJSON;
 using DTOs;
 using GISFunctions;
@@ -15,9 +16,16 @@ namespace GIS.VU.API
     {
         private readonly RouteFeature[] _routeFeatures;
 
-        public RouteSearchEngine(GeoJsonFileReader fileReader, string path)
+        public RouteSearchEngine(string path)
         {
-            _routeFeatures = fileReader.Read(path).ToArray();
+
+            var formatter = new BinaryFormatter();
+
+            using (var fileStream = new FileStream(path, FileMode.Open))
+            {
+                _routeFeatures = (RouteFeature[]) formatter.Deserialize(fileStream);
+            }
+
         }
 
         public RouteSearchResponse FindRoute(RouteSearchRequest request)
@@ -151,7 +159,7 @@ namespace GIS.VU.API
                 {
                     Type = "LineString",
                     Coordinates = SorthPath(path.Select(x =>
-                        ((LineString) x.Feature.Geometry).Coordinates.Select(y => new[] {y.Longitude, y.Latitude})
+                         x.Feature.Coordinates.Select(y => new[] {y.Longitude, y.Latitude})
                         .ToArray()).ToArray())
                 },
                 Info = new RouteInfo

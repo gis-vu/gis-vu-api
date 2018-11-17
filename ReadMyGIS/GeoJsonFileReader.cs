@@ -10,23 +10,27 @@ namespace ReadMyGIS
 {
     public class GeoJsonFileReader
     {
-        public List<RouteFeature> Read(string path)
+        public RouteFeature[] Read(string path)
         {
             var routeFeatures = ReadAndParseFeatures(path);
 
             //Debug.WriteLine("Started import");
-            int i = 0;
-            foreach (var routeFeature in routeFeatures)
-            {
-                i++;
-                //Debug.WriteLine(i);
+            int amount = 0;
 
-                foreach (var testRouteFeature in routeFeatures)
+            for(int i = 0; i < routeFeatures.Length - 1; i++)
+            //foreach (var routeFeature in routeFeatures)
+            {
+                amount++;
+                //Debug.WriteLine(amount);
+
+                for(int j = i + 1; j < routeFeatures.Length; j++)
+                //foreach (var testRouteFeature in routeFeatures)
                 {
 
-                    if (AreNeighbours(routeFeature, testRouteFeature))
+                    if (AreNeighbours(routeFeatures[i], routeFeatures[j]))
                     {
-                        routeFeature.Neighbours.Add(testRouteFeature);
+                        routeFeatures[i].Neighbours.Add(routeFeatures[j]);
+                        routeFeatures[j].Neighbours.Add(routeFeatures[i]);
                     }
                 }
             }
@@ -42,11 +46,11 @@ namespace ReadMyGIS
             if (routeFeature == testRouteFeature)
                 return false;
            
-            var startPoint1 = ((LineString)routeFeature.Feature.Geometry).Coordinates.First();
-            var endPoint1 = ((LineString)routeFeature.Feature.Geometry).Coordinates.Last();
+            var startPoint1 = routeFeature.Feature.Coordinates.First();
+            var endPoint1 = routeFeature.Feature.Coordinates.Last();
 
-            var startPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.First();
-            var endPoint2 = ((LineString)testRouteFeature.Feature.Geometry).Coordinates.Last();
+            var startPoint2 = testRouteFeature.Feature.Coordinates.First();
+            var endPoint2 = testRouteFeature.Feature.Coordinates.Last();
 
             if (Helpers.AreClose(startPoint1, startPoint2))
                 return true;
@@ -63,7 +67,7 @@ namespace ReadMyGIS
             return false;
         }
 
-        private List<RouteFeature> ReadAndParseFeatures(string path)
+        private RouteFeature[] ReadAndParseFeatures(string path)
         {
             var routeFeatures = new List<RouteFeature>();
 
@@ -73,12 +77,19 @@ namespace ReadMyGIS
             {
                 routeFeatures.Add(new RouteFeature()
                 {
-                    Feature = f,
+                    Feature = new RoadFeature()
+                    {
+                        Coordinates = ((LineString)(f.Geometry)).Coordinates.Select(x=> new CustomPosition()
+                        {
+                            Longitude = x.Longitude,Latitude = x.Latitude
+                        }).ToArray(),
+                        Properties = f.Properties
+                    },
                     //Length = CalculateLength(((LineString)f.Geometry).Coordinates)
                 });
             }
 
-            return routeFeatures;
+            return routeFeatures.ToArray();
         }
 
         private double CalculateLength(IEnumerable<Position> coordinates)

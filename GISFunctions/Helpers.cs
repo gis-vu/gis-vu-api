@@ -25,7 +25,7 @@ namespace GISFunctions
             return Math.Sqrt(Math.Pow(first.First() - second.First(), 2) + Math.Pow(first.Last() - second.Last(), 2));
         }
 
-        public static bool AreClose(Position first, Position second)
+        public static bool AreClose(CustomPosition first, CustomPosition second)
         {
             if (GetDistance(new[] { first.Latitude, first.Longitude }, new[] { second.Latitude, second.Longitude }) < DistanceDiff)
                 return true;
@@ -50,23 +50,23 @@ namespace GISFunctions
             return distance;
         }
 
-        public static Tuple<Position, Position>[] SplitFeatureIntoLineSegments(RouteFeature feature)
+        public static Tuple<CustomPosition, CustomPosition>[] SplitFeatureIntoLineSegments(RouteFeature feature)
         {
-            var coords = ((LineString)feature.Feature.Geometry).Coordinates;
-            var lineSegments = new List<Tuple<Position, Position>>();
+            var coords = feature.Feature.Coordinates;
+            var lineSegments = new List<Tuple<CustomPosition, CustomPosition>>();
 
             var lastPosition = coords.First();
 
             foreach (var c in coords.Skip(1))
             {
-                lineSegments.Add(new Tuple<Position, Position>(lastPosition, c));
+                lineSegments.Add(new Tuple<CustomPosition, CustomPosition>(lastPosition, c));
                 lastPosition = c;
             }
 
             return lineSegments.ToArray();
         }
 
-        public static double GetDistance(Tuple<Position, Position> lineSegment, Coordinate point)
+        public static double GetDistance(Tuple<CustomPosition, CustomPosition> lineSegment, Coordinate point)
         {
             double x = point.Lat,
                 y = point.Lng,

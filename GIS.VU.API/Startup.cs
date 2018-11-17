@@ -32,7 +32,7 @@ namespace GIS.VU.API
             var watch = System.Diagnostics.Stopwatch.StartNew();
             // the code that you want to measure comes here
 
-            services.AddSingleton(new RouteSearchEngine(new GeoJsonFileReader(), ".\\routedata.geojson"));
+            services.AddSingleton(new RouteSearchEngine(".\\data.txt"));
 
 
             watch.Stop();
