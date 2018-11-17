@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using GIS.VU.API.DTOs;
@@ -42,6 +43,8 @@ namespace GIS.VU.API
 
             while (nodes.Count != 0)
             {
+                //Debug.WriteLine(nodes.Count());
+
                 nodes.Sort((x, y) => Math.Sign(distances[x] - distances[y]));
 
                 var smallest = nodes.First();

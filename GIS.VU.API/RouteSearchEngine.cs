@@ -27,36 +27,36 @@ namespace GIS.VU.API
 
             if (pointFeature == null)
             {
-                var g1 = new Graph(_routeFeatures, null);
-                var path = g1.FindShortestPath(startFeature, endFeature, null);
+                //var g1 = new Graph(_routeFeatures, null);
+                //var path = g1.FindShortestPath(startFeature, endFeature, null);
 
-                if (path == null)
-                    return new RouteSearchResponse(Array.Empty<Route>());
+                //if (path == null)
+                 //   return new RouteSearchResponse(Array.Empty<Route>());
 
-                var route1 = PathToRoute(path);
+               // var route1 = PathToRoute(path);
 
                 var g2 = new Graph(_routeFeatures, request.SearchOptions);
                 var path2 = g2.FindShortestPath(startFeature, endFeature, null);
 
                 var route2 = PathToRoute(path2);
 
-                return new RouteSearchResponse(new[] { route1, route2 });
+                return new RouteSearchResponse(new[] { route2 });
             }
             else
             {
-                var g1 = new Graph(_routeFeatures, null);
-                var path1 = g1.FindShortestPath(startFeature, pointFeature, null);
+                //var g1 = new Graph(_routeFeatures, null);
+                //var path1 = g1.FindShortestPath(startFeature, pointFeature, null);
 
-                if (path1 == null)
-                    return new RouteSearchResponse(Array.Empty<Route>());
+                //if (path1 == null)
+                //    return new RouteSearchResponse(Array.Empty<Route>());
 
-                var path2 = g1.FindShortestPath(pointFeature, endFeature, null);
-                if (path2 == null)
-                    return new RouteSearchResponse(Array.Empty<Route>());
+                //var path2 = g1.FindShortestPath(pointFeature, endFeature, null);
+                //if (path2 == null)
+                //    return new RouteSearchResponse(Array.Empty<Route>());
 
-                var route1 = PathToRoute(path1);
-                var route2 = PathToRoute(path2);
-                var r1 = MergeTwoRoutes(route1, route2);
+                //var route1 = PathToRoute(path1);
+                //var route2 = PathToRoute(path2);
+                //var r1 = MergeTwoRoutes(route1, route2);
 
                 var g2 = new Graph(_routeFeatures, request.SearchOptions);
                 var path3 = g2.FindShortestPath(startFeature, pointFeature, null);
@@ -66,7 +66,7 @@ namespace GIS.VU.API
                 var route4 = PathToRoute(path4);
                 var r = MergeTwoRoutes(route3, route4);
 
-                return new RouteSearchResponse(new[] { r1, r  });
+                return new RouteSearchResponse(new[] { r  });
             }
         }
 

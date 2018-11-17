@@ -1,6 +1,7 @@
 ﻿using BAMCIS.GeoJSON;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -16,16 +17,25 @@ namespace GIS.VU.API
         {
             var routeFeatures = ReadAndParseFeatures(path);
 
+            //Debug.WriteLine("Started import");
+            int i = 0;
             foreach (var routeFeature in routeFeatures)
             {
+                i++;
+                //Debug.WriteLine(i);
+
                 foreach (var testRouteFeature in routeFeatures)
                 {
-                    if(AreNeighbours(routeFeature, testRouteFeature))
+
+                    if (AreNeighbours(routeFeature, testRouteFeature))
                     {
                         routeFeature.Neighbours.Add(testRouteFeature);
                     }
                 }
             }
+
+            //Debug.WriteLine("Finished import");
+
 
             return routeFeatures;
         }
